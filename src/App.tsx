@@ -1,9 +1,9 @@
 import React from 'react'
 import './App.css'
 
-import { Layout } from './Containers/Layout'
+import { Layout } from './Components/Layout'
 import { Routers } from './Containers/Routers'
-import { Setup } from './Containers/Setup'
+import { Setup } from './Setup'
 
 
 const App: React.FC = () => {

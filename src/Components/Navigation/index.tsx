@@ -34,7 +34,7 @@ export const Navigation = () => {
             News
           </Typography>
           <Link
-            to='/songs/add'
+            to='/songs/create'
             style={{ textDecoration: 'none' }}
           >Add Song</Link>
           <Link

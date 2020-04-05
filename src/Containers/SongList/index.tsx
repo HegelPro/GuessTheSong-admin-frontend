@@ -1,27 +1,35 @@
-import React, { useState, useEffect } from 'react'
-
-import { baseUrl, routes } from '../../api/url'
-import { ISong } from '../../models/song'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { getSongListTask } from '../../api/song'
 
+import { routes } from '../../api/url'
+import { fork } from 'fluture'
+import { identical } from 'ramda'
+
+import { useStore } from 'effector-react'
+import { List, ListItem, Icon } from '@material-ui/core'
+import { SongListStore } from './store'
+import { setSongListEvent } from './events'
 
 export const SongList = () => {
-  const [songList, setSongList] = useState<ISong[]>([])
+  const songList = useStore(SongListStore)
   useEffect(() => {
-    fetch(baseUrl + routes.songs.list)
-      .then(res => res.json())
-      .then(songs => setSongList(songs))
+    getSongListTask
+      .pipe(fork(identical)(setSongListEvent))
   }, [])
-  
 
   return (
     <React.Fragment>
-      {songList.map(song => (
-        <div key={song._id}>
-          {song.name}
-          <Link to={`${routes.songs.edit}/${song._id}`}>edit</Link>
-        </div>
-      ))}
+      <List>
+        {songList.map(song => (
+          <ListItem key={song.id}>
+            {song.name}
+            <Link to={`${routes.songs.edit}/${song.id}`}>
+              <Icon>edit</Icon>
+            </Link>
+          </ListItem>
+        ))}
+      </List>
     </React.Fragment>
   )
 }

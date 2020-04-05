@@ -1,82 +1,62 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useParams } from 'react-router'
+import { useStore } from 'effector-react'
+import { fork, map } from 'fluture'
 
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import FormGroup from '@material-ui/core/FormGroup'
 
-import { TagContainer } from '../TagContainer'
-import { ITag } from '../Tag'
-import { baseUrl, routes } from '../../api/url'
+import { TagContainer } from '../../Components/TagContainer'
+import { ITag } from '../../Components/Tag'
 
-import { ISong } from '../../models/song'
+import { getSongTask, updateSongTask } from '../../api/song'
+
+import { setSongEvent } from './events'
+import { songStore } from './store'
 
 export const SongEditForm = () => {
-  const [songName, setSongName] = useState('')
-  const [authorName, setAuthorName] = useState('')
-  const [urlName, setUrlName] = useState('')
-  const [tags, setTags] = useState<ITag[]>([])
-  
-  const { id } = useParams()
-
+  const song = useStore(songStore)
+  const { id } = useParams<{ id: string }>()
   useEffect(() => {
-    fetch(`${baseUrl}${routes.songs.base}/${id}`)
-      .then(res => res.json())
-      .then(({
-        author,
-        name,
-        tags,
-      }: ISong) => {
-        setSongName(name)
-        setAuthorName(author)
-        setTags(tags)
-      })
-  }, [])
+    getSongTask(id)
+      .pipe(map(e => { console.log(e); return e }))
+      .pipe(fork(() => { })((e) => setSongEvent(e)))
+  }, [id])
 
   return (
     <FormGroup>
       <TextField
         label='Song Name'
-        value={songName}
-        onChange={({target: {value}}) => setSongName(value)}
+        value={song.name}
+        onChange={({ target: { value } }) => setSongEvent({ ...song, name: value })}
       />
       <TextField
         label='Author'
-        value={authorName}
-        onChange={({target: {value}}) => setAuthorName(value)}
+        value={song.author}
+        onChange={({ target: { value } }) => setSongEvent({ ...song, author: value })}
       />
       <TextField
         label='Url'
-        value={urlName}
-        onChange={({target: {value}}) => setUrlName(value)}
+        value={song.url}
+        onChange={({ target: { value } }) => setSongEvent({ ...song, url: value })}
       />
-      <TagContainer
-        tags={tags}
+      {/* <TagContainer
+        tags={song.tags}
         onAddTag={(tag: ITag) => {
-          if (!tags.includes(tag)) {
-            const newTags = tags.concat()
+          if (!song.tags.includes(tag)) {
+            const newTags = song.tags.concat()
             newTags.push(tag)
-            setTags(newTags)
+            song.setTags(newTags)
           }
         }}
         onDeleteTag={(tag: ITag) => {
           const newTags = tags.filter(tagElement => tagElement !== tag)
           setTags(newTags)
         }}
-      />
+      /> */}
       <Button onClick={() => {
-        fetch(`${baseUrl}${routes.songs.edit}/${id}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            songName,
-            authorName,
-            urlName,
-            tags,
-          })
-        })
+        updateSongTask(song).pipe(fork(() => { })(() => { }))
       }}>Click</Button>
     </FormGroup>
   )
