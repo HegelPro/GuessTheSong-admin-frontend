@@ -6,6 +6,7 @@ import {
 
 import { SongEditForm } from '../SongEditForm'
 import { SongList } from '../SongList'
+import { Home } from '../../Components/Home'
 
 export const Routers = () => {
   return (
@@ -18,6 +19,9 @@ export const Routers = () => {
       </Route>
       <Route path='/songs' exact>
         <SongList />
+      </Route>
+      <Route path='/home' exact>
+        <Home />
       </Route>
     </Switch>
   )

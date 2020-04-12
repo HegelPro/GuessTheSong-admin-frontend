@@ -7,5 +7,5 @@ export const routes = {
     edit: '/song/edit',
     upload: '/song/upload',
     list: '/song/list'
-  }
+  },
 }
